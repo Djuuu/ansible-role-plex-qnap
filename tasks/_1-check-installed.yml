@@ -1,0 +1,14 @@
+---
+
+- name: Get Plex Media Server install status
+  ansible.builtin.command: qpkg_cli --status PlexMediaServer
+  register: plex_status
+  changed_when: false
+
+- name: Show Plex Media Server install status
+  ansible.builtin.debug:
+    msg: "{{ plex_status.stdout }}"
+
+- name: Register Plex Media Server install status
+  ansible.builtin.set_fact:
+    plex_installed: "{{ 'QPKG PlexMediaServer is installed' in plex_status.stdout }}"

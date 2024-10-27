@@ -1,0 +1,11 @@
+---
+
+# Download directory for qpkg package
+plex_download_dir: /tmp
+
+# Your Plex server URL (for version check)
+plex_server_url: https://plex.example.net
+
+# Optional token (For beta server update channel, requires Plex Pass)
+# https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+plex_token:

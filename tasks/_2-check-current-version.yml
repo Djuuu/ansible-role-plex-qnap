@@ -1,0 +1,15 @@
+---
+
+- name: Get Plex Media Server version
+  ansible.builtin.uri:
+    url: "{{ plex_server_url }}/identity"
+    return_content: true
+  register: identity_response
+
+- name: Show Plex Media Server version
+  ansible.builtin.set_fact:
+    plex_identity: "{{ identity_response.content | ansible.utils.from_xml }}"
+
+- name: Register Plex Media Server version
+  ansible.builtin.set_fact:
+    plex_current_version: "{{ plex_identity.MediaContainer['@version'] }}"

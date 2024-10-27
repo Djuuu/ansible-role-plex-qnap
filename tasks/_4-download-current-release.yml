@@ -1,0 +1,15 @@
+---
+
+- name: Check download directory is writeable
+  ansible.builtin.stat:
+    path: "{{ plex_download_dir }}"
+  register: dir_st
+  failed_when: not dir_st.stat.writeable or not (dir_st.stat.isdir or dir_st.stat.islnk)
+
+- name: Download latest plex release
+  ansible.builtin.get_url:
+    url: "{{ plex_release_url }}"
+    dest: "{{ plex_download_dir }}"
+    checksum: "sha1:{{ plex_release_checksum }}"
+    mode: '0644'
+  register: plex_download

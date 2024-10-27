@@ -1,0 +1,64 @@
+---
+
+# Check if installed
+- name: Check if installed
+  ansible.builtin.include_tasks: _1-check-installed.yml
+
+# Check installed version
+- name: Check installed version
+  ansible.builtin.include_tasks: _2-check-current-version.yml
+  when: plex_installed
+
+- name: Register empty version
+  ansible.builtin.set_fact:
+    plex_current_version: ''
+  when: not plex_installed
+
+# Get Plex Media Server update feed
+- name: Get Plex Media Server update feed
+  ansible.builtin.include_tasks: _3-get-current-release.yml
+
+# Compare versions
+- name: Compare versions
+  ansible.builtin.debug:
+    msg: "Version {{ plex_current_version }} ✔️ Up to date"
+  when: plex_current_version == plex_release_version
+
+# Download & install new version
+- name: Download & install new version
+  when: plex_current_version != plex_release_version
+  block:
+    - name: Show install target
+      ansible.builtin.debug:
+        msg:
+          - "New version:  {{ plex_current_version }}  -->  {{ plex_release_version }}"
+          - ""
+          - "release date: {{ '%Y-%m-%d %H:%M:%S' | strftime(plex_release_release_date) }}"
+          - "items added:"
+          - "{{ plex_release_items_added | split('\n') }}"
+          - "items fixed:"
+          - "{{ plex_release_items_fixed | split('\n') }}"
+          - "checksum: {{ plex_release_checksum }}"
+          - "url:      {{ plex_release_url }}"
+
+    # Download new release
+    - name: Download new release
+      ansible.builtin.include_tasks: _4-download-current-release.yml
+
+    # Install downloaded release
+    - name: Install downloaded release
+      ansible.builtin.include_tasks: _5-install_qpkg.yml
+
+
+# # Start service
+# - name: "Start Plex Media Server"
+#   ansible.builtin.shell: "qpkg_cli --enable PlexMediaServer"
+#   register: start_result
+#   become: true
+#
+# - ansible.builtin.debug:
+#     msg:
+#       - "{{ start_result.stdout_lines }}"
+#       - "{{ start_result.stderr_lines }}"
+#  ❓ Plex Media Server is currently running or hasn't been shutdown properly.
+#    Please stop it from QNAP AppCenter and start it again.

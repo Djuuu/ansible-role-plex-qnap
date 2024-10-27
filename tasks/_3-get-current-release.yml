@@ -1,0 +1,28 @@
+---
+
+- name: Get Plex Media Server update feed
+  ansible.builtin.uri:
+    url: "{{ plex_update_feed }}"
+  register: feed
+
+- name: Get Plex Media Server latest releases
+  block:
+    - name: Get Plex Media Server latest releases
+      ansible.builtin.set_fact:
+        plex_releases: "{{ feed.json.nas.QNAP.releases | community.general.json_query('[?build==`' ~ plex_build ~ '`]') }}"
+      failed_when: plex_releases | length == 0
+  rescue:
+    - name: "No release found for architecture: {{ ansible_architecture }}"
+      ansible.builtin.fail:
+        msg: "No release found for architecture: {{ ansible_architecture }}"
+
+- name: Register Plex Media Server latest release
+  vars:
+    plex_release: "{{ plex_releases | first }}"
+  ansible.builtin.set_fact:
+    plex_release_release_date: "{{ feed.json.nas.QNAP.release_date }}"
+    plex_release_version:      "{{ feed.json.nas.QNAP.version }}"
+    plex_release_items_added:  "{{ feed.json.nas.QNAP.items_added }}"
+    plex_release_items_fixed:  "{{ feed.json.nas.QNAP.items_fixed }}"
+    plex_release_checksum:     "{{ plex_release.checksum }}"
+    plex_release_url:          "{{ plex_release.url }}"

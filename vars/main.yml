@@ -1,0 +1,16 @@
+---
+
+# Default to public server update channel
+plex_public_update_feed: "https://plex.tv/api/downloads/5.json"
+
+# Beta server update channel (requires Plex Pass)
+plex_beta_update_feed: "https://plex.tv/api/downloads/5.json?channel=plexpass&X-Plex-Token={{ plex_token }}"
+
+# Plex update feed
+plex_update_feed: "{{ (plex_token | default('', true) != '') | ternary(
+    plex_beta_update_feed,
+    plex_public_update_feed
+  ) }}"
+
+# Plex build
+plex_build: "linux-{{ ansible_architecture }}"
