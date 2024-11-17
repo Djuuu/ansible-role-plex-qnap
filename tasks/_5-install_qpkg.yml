@@ -10,17 +10,20 @@
   ansible.builtin.debug:
     msg: "{{ install_result.stdout_lines }}"
 
-- name: Wait for installation
+- name: Wait 1 minute for installation
+  ansible.builtin.pause:
+    minutes: 1
+
+- name: Check installation completed
   ansible.builtin.shell:
     cmd: |
       set -o pipefail
       qpkg_cli --list | grep '\[PlexMediaServer\]'
     executable: /bin/bash
   register: list_result
-  failed_when: false
-  until: "list_result.rc > 0"
-  retries: 10
-  delay: 20
+  failed_when: list_result.rc == 0
+  retries: 15
+  delay: 30
   changed_when: true
 
 - name: Confirm Plex Media Server installed
