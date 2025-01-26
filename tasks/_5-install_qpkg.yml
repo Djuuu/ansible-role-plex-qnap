@@ -22,7 +22,7 @@
     executable: /bin/bash
   register: list_result
   failed_when: list_result.rc == 0
-  retries: 15
+  retries: 20
   delay: 30
   changed_when: true
 
